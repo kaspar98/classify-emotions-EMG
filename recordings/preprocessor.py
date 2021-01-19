@@ -67,12 +67,21 @@ def remove_beginnings(datasets):
             file_starttime_seconds = value["Timestamp"].iloc[0]
 
             file_correct_start = file_starttime_seconds + start_seconds
+            file_correct_end = file_correct_start + 20 + 5 + 20 + 5 + 20
 
-            retval[key] = value[value["Timestamp"] > file_correct_start]
+            retval[key] = value[(value["Timestamp"] > file_correct_start) & (value["Timestamp"] < file_correct_end)]
         except:
             print("SKIPPING %s: couldn't get starttime from filename. please use proper filename format 'name_startXs.txt' where X is the second slideshow happy started" % key)
 
     return retval
+
+
+def print_file_lengths(datasets):
+    for key, value in datasets.items():
+        start = value["Timestamp"].iloc[0]
+        end = value["Timestamp"].iloc[-1]
+
+        print("File: %s, length: %s" % (key, str(end - start)))
 
 
 def run():
@@ -81,8 +90,7 @@ def run():
     datasets = clear_columns(datasets)
     datasets = remove_beginnings(datasets)
 
-    for key, value in datasets.items():
-        print(value.head())
+    # print_file_lengths(datasets)  # For debug to check if files are about the same length
 
     print("Collected data for %i recordings" % len(datasets))
 
