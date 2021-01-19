@@ -37,7 +37,7 @@ def read_data():
     for filepath in os.listdir(raw_path):
         print("Collecting data from: %s" % filepath)
         file_path = os.path.join(raw_path, filepath)
-        current_data = pd.read_csv(file_path, sep=", ", header=None, skiprows=4, engine="python")
+        current_data = pd.read_csv(file_path, sep=", ", header=0, skiprows=4, engine="python")
 
         datasets[filepath] = current_data
 
@@ -48,9 +48,22 @@ def read_data():
     return datasets
 
 
+def clear_columns(datasets):
+    retval = {}
+
+    for key, value in datasets.items():
+        retval[key] = value[["Sample Index", "EXG Channel 0", "EXG Channel 2", "Timestamp", "Timestamp (Formatted)"]]
+
+    return retval
+
+
 def run():
     clean()
     datasets = read_data()
+    datasets = clear_columns(datasets)
+
+    for dataset in datasets.values():
+        print(dataset.head())
 
     print("Collected data for %i recordings" % len(datasets))
 
