@@ -38,6 +38,7 @@ def read_data():
         print("Collecting data from: %s" % filepath)
         file_path = os.path.join(raw_path, filepath)
         current_data = pd.read_csv(file_path, sep=", ", header=0, skiprows=4, engine="python")
+        current_data["Timestamp"] = pd.to_numeric(current_data["Timestamp"])
 
         datasets[filepath] = current_data
 
@@ -62,8 +63,12 @@ def remove_beginnings(datasets):
 
     for key, value in datasets.items():
         try:
-            starttime = int(key.split("_")[1].replace("start", "").replace(".txt", "").replace("s", ""))
-            print(starttime)
+            start_seconds = float(key.split("_")[1].replace("start", "").replace(".txt", "").replace("s", ""))
+            file_starttime_seconds = value["Timestamp"].iloc[0]
+
+            file_correct_start = file_starttime_seconds + start_seconds
+
+            retval[key] = value[value["Timestamp"] > file_correct_start]
         except:
             print("SKIPPING %s: couldn't get starttime from filename. please use proper filename format 'name_startXs.txt' where X is the second slideshow happy started" % key)
 
@@ -76,9 +81,10 @@ def run():
     datasets = clear_columns(datasets)
     datasets = remove_beginnings(datasets)
 
+    for key, value in datasets.items():
+        print(value.head())
+
     print("Collected data for %i recordings" % len(datasets))
-
-
 
 
 if __name__ == "__main__":
