@@ -1,6 +1,7 @@
 import os
 
 import pandas as pd
+import matplotlib.pyplot as plt
 
 
 def clean():
@@ -58,7 +59,7 @@ def clear_columns(datasets):
     return retval
 
 
-def remove_beginnings(datasets):
+def clear_edges(datasets):
     retval = {}
 
     for key, value in datasets.items():
@@ -84,13 +85,42 @@ def print_file_lengths(datasets):
         print("File: %s, length: %s" % (key, str(end - start)))
 
 
+def plot_datasets(datasets):
+    count = 0
+    
+    for key, value in datasets.items():
+        if count == 1:  # Only plot the first for now
+            break
+            
+        ax = plt.gca()
+        
+        value.plot(kind="line", x="Timestamp", y="EXG Channel 0", ax=ax, color="blue")
+        value.plot(kind="line", x="Timestamp", y="EXG Channel 2", ax=ax, color="red")
+
+        plt.show()
+        
+        count += 1
+
+
+def apply_bp_filter(datasets):
+    retval = {}
+
+    for key, value in datasets.items():
+        retval[key] = value[(value["Sample Index"] >= 1.0) & (value["Sample Index"] <= 100.0) & value["Sample Index"] != 50.0]
+
+    return retval
+
+
 def run():
     clean()
     datasets = read_data()
     datasets = clear_columns(datasets)
-    datasets = remove_beginnings(datasets)
+    datasets = clear_edges(datasets)
+    datasets = apply_bp_filter(datasets)
 
     # print_file_lengths(datasets)  # For debug to check if files are about the same length
+
+    plot_datasets(datasets)
 
     print("Collected data for %i recordings" % len(datasets))
 
