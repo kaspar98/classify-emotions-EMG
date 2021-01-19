@@ -1,7 +1,10 @@
 import os
 
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
+
+from scipy import signal
 
 
 def clean():
@@ -85,13 +88,47 @@ def print_file_lengths(datasets):
         print("File: %s, length: %s" % (key, str(end - start)))
 
 
+def bandpass(start, stop, data, fs=250):
+    bp_Hz = np.array([start, stop])
+    b, a = signal.butter(5, bp_Hz / (fs / 2.0), btype='bandpass')
+    return signal.lfilter(b, a, data, axis=0)
+
+
+def notch(val, data, fs=250):
+    notch_freq_Hz = np.array([float(val)])
+    for freq_Hz in np.nditer(notch_freq_Hz):
+        bp_stop_Hz = freq_Hz + 3.0 * np.array([-1, 1])
+        b, a = signal.butter(3, bp_stop_Hz / (fs / 2.0), 'bandstop')
+        fin = data = signal.lfilter(b, a, data)
+    return fin
+
+
+def apply_bp_filter(datasets):
+    retval = {}
+
+    band_low_value = 1.0
+    band_high_value = 100.0
+    notch_value = 50.0
+
+    for key, value in datasets.items():
+        current_df = value
+
+        for channel in [0, 2]:
+            raw_data = list(current_df["EXG Channel %s" % str(channel)])
+            notched_data = notch(50.0, raw_data)
+            bp_data = bandpass(band_low_value, band_high_value, notched_data)
+
+            current_df["EXG Channel %s" % str(channel)] = bp_data
+
+        retval[key] = current_df
+
+    return retval
+
+
 def plot_datasets(datasets):
     count = 0
     
     for key, value in datasets.items():
-        if count == 1:  # Only plot the first for now
-            break
-            
         ax = plt.gca()
         
         value.plot(kind="line", x="Timestamp", y="EXG Channel 0", ax=ax, color="blue")
@@ -102,39 +139,15 @@ def plot_datasets(datasets):
         count += 1
 
 
-def apply_bp_filter(datasets):
-    retval = {}
-
-    for key, value in datasets.items():
-        retval[key] = value[(value["Sample Index"] >= 1.0) & (value["Sample Index"] <= 100.0) & value["Sample Index"] != 50.0]
-
-    return retval
-
-
-def microvolts_to_volts(datasets):
-    retval = {}
-
-    for key, value in datasets.items():
-        current_df = value
-        current_df["EXG Channel 0"] = current_df["EXG Channel 0"].apply(lambda item: item / 1000.0)
-        current_df["EXG Channel 2"] = current_df["EXG Channel 2"].apply(lambda item: item / 1000.0)
-
-        retval[key] = current_df
-
-    return retval
-
-
 def run():
     clean()
     datasets = read_data()
     datasets = clear_columns(datasets)
     datasets = clear_edges(datasets)
     datasets = apply_bp_filter(datasets)
-    datasets = microvolts_to_volts(datasets)
 
     # print_file_lengths(datasets)  # For debug to check if files are about the same length
-
-    plot_datasets(datasets)
+    # plot_datasets(datasets)  # For debug to see plots of the filtered signals
 
     print("Collected data for %i recordings" % len(datasets))
 
