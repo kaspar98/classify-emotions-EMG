@@ -111,12 +111,26 @@ def apply_bp_filter(datasets):
     return retval
 
 
+def microvolts_to_volts(datasets):
+    retval = {}
+
+    for key, value in datasets.items():
+        current_df = value
+        current_df["EXG Channel 0"] = current_df["EXG Channel 0"].apply(lambda item: item / 1000.0)
+        current_df["EXG Channel 2"] = current_df["EXG Channel 2"].apply(lambda item: item / 1000.0)
+
+        retval[key] = current_df
+
+    return retval
+
+
 def run():
     clean()
     datasets = read_data()
     datasets = clear_columns(datasets)
     datasets = clear_edges(datasets)
     datasets = apply_bp_filter(datasets)
+    datasets = microvolts_to_volts(datasets)
 
     # print_file_lengths(datasets)  # For debug to check if files are about the same length
 
