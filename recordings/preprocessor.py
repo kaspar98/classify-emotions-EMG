@@ -57,13 +57,24 @@ def clear_columns(datasets):
     return retval
 
 
+def remove_beginnings(datasets):
+    retval = {}
+
+    for key, value in datasets.items():
+        try:
+            starttime = int(key.split("_")[1].replace("start", "").replace(".txt", "").replace("s", ""))
+            print(starttime)
+        except:
+            print("couldn't get starttime for %s" % key)
+
+    return retval
+
+
 def run():
     clean()
     datasets = read_data()
     datasets = clear_columns(datasets)
-
-    for dataset in datasets.values():
-        print(dataset.head())
+    datasets = remove_beginnings(datasets)
 
     print("Collected data for %i recordings" % len(datasets))
 
