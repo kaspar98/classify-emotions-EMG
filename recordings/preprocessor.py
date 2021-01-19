@@ -65,7 +65,7 @@ def remove_beginnings(datasets):
             starttime = int(key.split("_")[1].replace("start", "").replace(".txt", "").replace("s", ""))
             print(starttime)
         except:
-            print("couldn't get starttime for %s" % key)
+            print("SKIPPING %s: couldn't get starttime from filename. please use proper filename format 'name_startXs.txt' where X is the second slideshow happy started" % key)
 
     return retval
 
