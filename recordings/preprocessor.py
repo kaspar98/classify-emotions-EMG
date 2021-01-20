@@ -263,8 +263,8 @@ def run():
     #clean()
     datasets = read_data()
     datasets = clear_columns(datasets)
-    datasets = clear_edges(datasets)
     datasets = apply_bp_filter(datasets)
+    datasets = clear_edges(datasets)
     datasets = normalize_data(datasets)
 
     picture_blocks = extract_picture_blocks(datasets)
@@ -279,7 +279,7 @@ def run():
 
     print(final_data.head(1))
     # print_file_lengths(datasets)  # For debug to check if files are about the same length
-    # plot_datasets(datasets)  # For debug to see plots of the filtered signals
+    plot_datasets(datasets)  # For debug to see plots of the filtered signals
 
     print("Collected data for %i recordings" % len(datasets))
 
