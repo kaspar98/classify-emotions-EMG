@@ -3,6 +3,7 @@ import os
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from collections import defaultdict
 
 from scipy import signal
 
@@ -146,6 +147,32 @@ def normalize_data(datasets):
     return retval
 
 
+def exctract_picture_blocks(datasets):
+
+    def cut_ends(data, fs=250, length=2):
+        return data[length*fs:len(data)-length*fs]
+
+    picture_blocks = defaultdict(lambda: [])
+
+    fs = 250 # sampling frequency
+
+    for recording_name, current_df in datasets.items():
+
+        for channel in [0, 2]:
+
+            data = current_df["EXG Channel %s" % str(channel)]
+
+            happy   = cut_ends(data[0*fs  : 20*fs])
+            neutral = cut_ends(data[25*fs : 45*fs])
+            sad     = cut_ends(data[50*fs : 70*fs])
+
+            picture_blocks[("happy", channel, recording_name)].append(happy)
+            picture_blocks[("neutral", channel, recording_name)].append(neutral)
+            picture_blocks[("sad", channel, recording_name)].append(sad)
+
+    return picture_blocks
+
+
 def plot_datasets(datasets):
     count = 0
     
@@ -167,6 +194,7 @@ def run():
     datasets = clear_edges(datasets)
     datasets = apply_bp_filter(datasets)
     datasets = normalize_data(datasets)
+    picture_blocks = exctract_picture_blocks(datasets)
 
     # print_file_lengths(datasets)  # For debug to check if files are about the same length
     # plot_datasets(datasets)  # For debug to see plots of the filtered signals
