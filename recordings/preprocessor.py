@@ -147,7 +147,7 @@ def normalize_data(datasets):
     return retval
 
 
-def exctract_picture_blocks(datasets):
+def extract_picture_blocks(datasets):
 
     def cut_ends(data, fs=250, length=2):
         return data[length*fs:len(data)-length*fs]
@@ -173,6 +173,39 @@ def exctract_picture_blocks(datasets):
     return picture_blocks
 
 
+def extract_data_samples(picture_blocks, sample_length, sample_step):
+    """ Extract one sample every sample_step (s) with sample_length (s)
+    """
+
+    def channel_nr_to_muscle(channel_nr):
+        if channel_nr == 0:
+            return "Zygomaticus Major"
+        elif channel_nr == 2:
+            return "Corrugator Supercilii"
+
+    def recording_name_to_person(recording_name):
+        return recording_name.split("_")[0]
+
+
+    fs = 250 # sampling_frequency
+    data_samples = defaultdict(lambda: [])
+
+    for (emotion, channel, recording_name), blocks in picture_blocks.items():
+
+        muscle = channel_nr_to_muscle(channel)
+        person = recording_name_to_person(recording_name)
+        block_length = int(len(blocks[0]) / fs)
+
+        for block in blocks:
+
+            for sample_start in range(0, block_length-sample_length, sample_step):
+
+                sample = block[sample_start*fs:(sample_start+sample_length)*fs]
+                data_samples[(emotion, muscle, person)].append(sample)
+
+    return data_samples
+
+
 def plot_datasets(datasets):
     count = 0
     
@@ -194,7 +227,12 @@ def run():
     datasets = clear_edges(datasets)
     datasets = apply_bp_filter(datasets)
     datasets = normalize_data(datasets)
-    picture_blocks = exctract_picture_blocks(datasets)
+
+    picture_blocks = extract_picture_blocks(datasets)
+
+    sample_length = 2
+    sample_step = 2
+    data_samples = extract_data_samples(picture_blocks, sample_length, sample_step)
 
     # print_file_lengths(datasets)  # For debug to check if files are about the same length
     # plot_datasets(datasets)  # For debug to see plots of the filtered signals
