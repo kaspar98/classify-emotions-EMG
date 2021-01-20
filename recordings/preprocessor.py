@@ -37,7 +37,7 @@ def read_data():
 
     datasets = {}
 
-    raw_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "raw")
+    raw_path = os.path.join(os.getcwd(), "raw")
     for filepath in os.listdir(raw_path):
         print("Collecting data from: %s" % filepath)
         file_path = os.path.join(raw_path, filepath)
@@ -65,15 +65,17 @@ def clear_columns(datasets):
 def clear_edges(datasets):
     retval = {}
 
+    fs = 250 # sampling frequency
+
     for key, value in datasets.items():
         try:
-            start_seconds = float(key.split("_")[1].replace("start", "").replace(".txt", "").replace("s", ""))
-            file_starttime_seconds = value["Timestamp"].iloc[0]
+            start_seconds = int(key.split("_")[1].replace("start", "").replace(".txt", "").replace("s", ""))
 
-            file_correct_start = file_starttime_seconds + start_seconds
-            file_correct_end = file_correct_start + 20 + 5 + 20 + 5 + 20
+            # timestamps are not accurate, frequency should be https://github.com/OpenBCI/OpenBCI_GUI/issues/129
+            file_correct_start = fs * start_seconds
+            file_correct_end = file_correct_start + fs * (20 + 5 + 20 + 5 + 20)
 
-            retval[key] = value[(value["Timestamp"] > file_correct_start) & (value["Timestamp"] < file_correct_end)]
+            retval[key] = value[file_correct_start:file_correct_end]
         except:
             print("SKIPPING %s: couldn't get starttime from filename. please use proper filename format 'name_startXs.txt' where X is the second slideshow happy started" % key)
 
@@ -82,10 +84,11 @@ def clear_edges(datasets):
 
 def print_file_lengths(datasets):
     for key, value in datasets.items():
+
         start = value["Timestamp"].iloc[0]
         end = value["Timestamp"].iloc[-1]
 
-        print("File: %s, length: %s" % (key, str(end - start)))
+        print(f"File: {key}, length: {end - start}, samples {len(value)}")
 
 
 def bandpass(start, stop, data, fs=250):
@@ -110,8 +113,7 @@ def apply_bp_filter(datasets):
     band_high_value = 100.0
     notch_value = 50.0
 
-    for key, value in datasets.items():
-        current_df = value
+    for key, current_df in datasets.items():
 
         for channel in [0, 2]:
             raw_data = list(current_df["EXG Channel %s" % str(channel)])
@@ -150,7 +152,6 @@ def run():
     # plot_datasets(datasets)  # For debug to see plots of the filtered signals
 
     print("Collected data for %i recordings" % len(datasets))
-
 
 if __name__ == "__main__":
     run()
