@@ -7,7 +7,7 @@ from collections import defaultdict
 
 from scipy import signal
 
-
+"""
 def clean():
     print("################################################################")
     print("Step 1 - Cleaning 'processed' folder of previous files.")
@@ -30,11 +30,11 @@ def clean():
     print("Step 1 - Done")
     print("################################################################")
     print()
-
+"""
 
 def read_data():
     print("################################################################")
-    print("Step 2 - Collecting data from .txt files")
+    print("Step 1 - Collecting data from .txt files")
 
     datasets = {}
 
@@ -260,7 +260,7 @@ def plot_datasets(datasets):
 
 
 def run():
-    clean()
+    #clean()
     datasets = read_data()
     datasets = clear_columns(datasets)
     datasets = clear_edges(datasets)
@@ -277,6 +277,7 @@ def run():
 
     save_data(final_data, f"data_sLen{sample_length}_sStep{sample_step}")
 
+    print(final_data.head(1))
     # print_file_lengths(datasets)  # For debug to check if files are about the same length
     # plot_datasets(datasets)  # For debug to see plots of the filtered signals
 
