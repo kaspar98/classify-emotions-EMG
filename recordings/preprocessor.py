@@ -127,6 +127,25 @@ def apply_bp_filter(datasets):
     return retval
 
 
+def normalize_data(datasets):
+
+    retval = {}
+
+    for key, current_df in datasets.items():
+
+        for channel in [0, 2]:
+
+            selector = "EXG Channel %s" % str(channel)
+            data = current_df[selector]
+            # 'data - mean' to center values around 0
+            # 'data/max' to push all values between -1..1
+            current_df[selector] = (data - data.mean()) / data.abs().max()
+
+        retval[key] = current_df
+
+    return retval
+
+
 def plot_datasets(datasets):
     count = 0
     
@@ -147,6 +166,7 @@ def run():
     datasets = clear_columns(datasets)
     datasets = clear_edges(datasets)
     datasets = apply_bp_filter(datasets)
+    datasets = normalize_data(datasets)
 
     # print_file_lengths(datasets)  # For debug to check if files are about the same length
     # plot_datasets(datasets)  # For debug to see plots of the filtered signals
