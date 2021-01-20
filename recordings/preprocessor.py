@@ -206,6 +206,41 @@ def extract_data_samples(picture_blocks, sample_length, sample_step):
     return data_samples
 
 
+def extract_features_for_all_data(data_samples):
+
+    def extract_features(data_sample):
+
+        """
+        features = {"Mav": ..,
+                   "Mavfd": ..,
+                   "Peak": ..,
+                   "Rms": ..,
+                   ...
+                   }
+
+        return features
+        """
+
+        return {"Max": np.max(data_sample)}
+
+
+    final_data = []
+
+    for (emotion, muscle, person), samples in data_samples.items():
+
+        for i, sample in enumerate(samples):
+
+            data_row = extract_features(sample)
+            data_row["Emotion"] = emotion
+            data_row["Muscle"] = muscle
+            data_row["Person"] = person
+            data_row["Sample idx"] = i
+
+            final_data.append(data_row)
+
+    return pd.DataFrame(final_data)
+
+
 def plot_datasets(datasets):
     count = 0
     
@@ -233,6 +268,8 @@ def run():
     sample_length = 2
     sample_step = 2
     data_samples = extract_data_samples(picture_blocks, sample_length, sample_step)
+
+    final_data = extract_features_for_all_data(data_samples)
 
     # print_file_lengths(datasets)  # For debug to check if files are about the same length
     # plot_datasets(datasets)  # For debug to see plots of the filtered signals
