@@ -241,6 +241,10 @@ def extract_features_for_all_data(data_samples):
     return pd.DataFrame(final_data)
 
 
+def save_data(data, file_name):
+    data.to_pickle(f"{file_name}.pkl")
+
+
 def plot_datasets(datasets):
     count = 0
     
@@ -270,6 +274,8 @@ def run():
     data_samples = extract_data_samples(picture_blocks, sample_length, sample_step)
 
     final_data = extract_features_for_all_data(data_samples)
+
+    save_data(final_data, f"data_sLen{sample_length}_sStep{sample_step}")
 
     # print_file_lengths(datasets)  # For debug to check if files are about the same length
     # plot_datasets(datasets)  # For debug to see plots of the filtered signals
