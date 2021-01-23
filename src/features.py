@@ -292,16 +292,3 @@ class SignalFeatures:
 		return feature_dict_
 
 
-if __name__ == "__main__":
-	import time
-	signal = pd.read_csv('../recordings/raw/aun_start16s.txt', sep=",", skiprows=4)[' EXG Channel 2'].tolist()
-	sf = SignalFeatures(signal)
-
-	# 1 : SampEn
-	# 2 : ApEn
-	start = time.time()
-	a = sf.sampen()
-	end = time.time()
-	print(a)
-	print(end-start)
-
