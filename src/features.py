@@ -64,14 +64,14 @@ class SignalFeatures:
 		return np.mean(abs(np.diff(self.signal, n=2)))
 
 	def peak(self):
-		""" Obtains index at which amplitude is maximum
+		""" Obtains maximum amplitude recorded for signal
 
 		Returns
 		------
-		int
-			index at which peak occurs
+		float
+			peak
 		"""
-		return np.argmax(self.signal)
+		return max(self.signal)
 
 	def rms(self):
 		""" Computes Root Mean Square (rms) of signal
