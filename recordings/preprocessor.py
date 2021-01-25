@@ -91,13 +91,13 @@ def print_file_lengths(datasets):
 
         print(f"File: {key}, length: {end - start}, samples {len(value)}")
 
-
+# Method from https://github.com/J77M/openbciGui_filter_test/blob/master/gui_saved_data_filter.ipynb?fbclid=IwAR2_1W5Gzs2n57qsdpTSVqSsj6NBnRrWcqbcYmwTx8syKcISJosmrZkDHFg
 def bandpass(start, stop, data, fs=250):
     bp_Hz = np.array([start, stop])
     b, a = signal.butter(5, bp_Hz / (fs / 2.0), btype='bandpass')
     return signal.lfilter(b, a, data, axis=0)
 
-
+# Method from https://github.com/J77M/openbciGui_filter_test/blob/master/gui_saved_data_filter.ipynb?fbclid=IwAR2_1W5Gzs2n57qsdpTSVqSsj6NBnRrWcqbcYmwTx8syKcISJosmrZkDHFg
 def notch(val, data, fs=250):
     notch_freq_Hz = np.array([float(val)])
     for freq_Hz in np.nditer(notch_freq_Hz):
@@ -105,7 +105,6 @@ def notch(val, data, fs=250):
         b, a = signal.butter(3, bp_stop_Hz / (fs / 2.0), 'bandstop')
         fin = data = signal.lfilter(b, a, data)
     return fin
-
 
 def apply_bp_filter(datasets):
     retval = {}
@@ -118,7 +117,7 @@ def apply_bp_filter(datasets):
 
         for channel in [0, 2]:
             raw_data = list(current_df["EXG Channel %s" % str(channel)])
-            notched_data = notch(50.0, raw_data)
+            notched_data = notch(notch_value, raw_data)
             bp_data = bandpass(band_low_value, band_high_value, notched_data)
 
             current_df["EXG Channel %s" % str(channel)] = bp_data
@@ -250,7 +249,7 @@ def plot_datasets(datasets):
     
     for key, value in datasets.items():
         ax = plt.gca()
-        
+        plt.title(key)
         value.plot(kind="line", x="Timestamp", y="EXG Channel 0", ax=ax, color="blue")
         value.plot(kind="line", x="Timestamp", y="EXG Channel 2", ax=ax, color="red")
 
@@ -279,7 +278,7 @@ def run():
 
     print(final_data.head(1))
     # print_file_lengths(datasets)  # For debug to check if files are about the same length
-    plot_datasets(datasets)  # For debug to see plots of the filtered signals
+    #plot_datasets(datasets)  # For debug to see plots of the filtered signals
 
     print("Collected data for %i recordings" % len(datasets))
 
