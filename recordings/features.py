@@ -1,10 +1,6 @@
 import numpy as np
-import pandas as pd
 import scipy.signal as ssignal
 import scipy
-
-import collections
-import functools
 
 
 class SignalFeatures:
@@ -124,7 +120,7 @@ class SignalFeatures:
 
 		Returns
 		------
-		fmode: float
+		fmode: complex number
 		"""
 		return max(np.fft.fft(self.signal))
 

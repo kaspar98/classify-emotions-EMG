@@ -186,7 +186,6 @@ def extract_data_samples(picture_blocks, sample_length, sample_step):
     def recording_name_to_person(recording_name):
         return recording_name.split("_")[0]
 
-
     fs = 250 # sampling_frequency
     data_samples = defaultdict(lambda: [])
 
