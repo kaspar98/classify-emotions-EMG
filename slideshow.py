@@ -30,18 +30,17 @@ class Imagewindow(tk.Tk):
 
         self.blank_shown = False
         
-        self.blank = PhotoImage(file="img/blank.jpg")
+        self.blank = PhotoImage(file="img/Gun 10.jpg")
         self.photos = cycle(PhotoImage(file=image) for image in images)
         self.displayCanvas = tk.Label(self)
         self.displayCanvas.pack()
-
 
     def slideShow(self):
         if (self.index >= self.count):
             self.quit()
 
         if self.index % SAMPLE_SIZE == 0 and not self.blank_shown:
-            self.blank_shown  = True
+            self.blank_shown = True
 
             self.displayCanvas.config(image=self.blank)
             self.after(1000 * 5, self.slideShow)
@@ -53,15 +52,15 @@ class Imagewindow(tk.Tk):
             self.displayCanvas.config(image=img)
             self.after(1000 * 2, self.slideShow)
 
-
     def run(self):
         self.mainloop()
 
 
-imagelist = get_images()
-
-root = Imagewindow(images=imagelist)
-root.overrideredirect(True)
-root.geometry('500x400')
-root.slideShow()
-root.run()
+if __name__ == "__main__":
+    imagelist = get_images()
+    print(imagelist)
+    # root = Imagewindow(images=imagelist)
+    # root.overrideredirect(True)
+    # root.geometry('500x400')
+    # root.slideShow()
+    # root.run()
